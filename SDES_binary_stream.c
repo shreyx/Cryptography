@@ -1,3 +1,8 @@
+//  Author :  shreyx ( Shreyanshu Agarwal )
+//  Github Profile: https://github.com/shreyx
+
+//  @shreyx
+
 #include<stdio.h>
 #include<string.h>
 
