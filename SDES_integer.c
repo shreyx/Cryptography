@@ -1,8 +1,12 @@
-//  Author :  shreyx ( Shreyanshu Agarwal )
-//  Github Profile: https://github.com/shreyx
+/*
+Author 			:  	shreyx ( Shreyanshu Agarwal )
+Github Profile	: 	https://github.com/shreyx
+Disclaimer		:	This code is presented "as is" without any guarantees.
+Description		:	This code is an implementation of S-DES encryption using C for Integer input 
 
-//  @shreyx
 
+@shreyx
+*/
 #include<stdio.h>
 
 int swap(int data);
