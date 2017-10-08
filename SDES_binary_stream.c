@@ -1,9 +1,12 @@
 /*
+Title           :   S-DES Implementation
 Author          :   shreyx ( Shreyanshu Agarwal )
 Github Profile  :   https://github.com/shreyx
 Disclaimer      :   This code is presented "as is" without any guarantees.
 Description     :   This code is an implementation of S-DES encryption using C for binary stream input
-
+Input Format    :   Binary Representation of 10 bit key(exactly 10 chars)
+                    Binary Representation of 8 bit plain text(exactly 8 chars)
+Output          :   The Cipher Text in Binary Representation
 @shreyx
 */
 #include<stdio.h>
@@ -11,6 +14,7 @@ Description     :   This code is an implementation of S-DES encryption using C f
 
 char key[11],k1[9],k2[9],ptcopy[9],pt[9],ct[9];
 
+void permute(char * out , char * data,const short * permutator, int n);
 void sdes_encrypt();
 void keygen();
 void fkey(char keyarr[]);
@@ -44,34 +48,23 @@ void sdes_encrypt()
     const short ip[8]={2,6,3,1,4,8,5,7};        // IP
     const short ipinv[8]={4,1,3,5,7,2,8,6};     // IP-1
     int i;
-    for(i=0;i<8;i++)                    // Performing IP on pt
-    {
-        ptcopy[i]=pt[ip[i]-1];
-    }
-    ptcopy[i]='\0';
+    permute(ptcopy,pt,ip,8);                   // Performing IP on pt
 
     fkey(k1);
     swap();
     fkey(k2);
 
-    for(i=0;i<8;i++)                    // Performing IP-1 on ptcopy for Cipher Text
-    {
-        ct[i]=ptcopy[ipinv[i]-1];
-    }
-    ct[i]='\0';
+    permute(ct,ptcopy,ipinv,8);                 // Performing IP-1 on ptcopy for Cipher Text
 }
 void keygen()
 {
-    const int p10[10]={3,5,2,7,4,10,1,9,8,6};
-    const int p8[8]={6,3,7,4,8,5,10,9};
+    const short p10[10]={3,5,2,7,4,10,1,9,8,6};
+    const short p8[8]={6,3,7,4,8,5,10,9};
 
     char lpart[6],rpart[6];
     char kcopy[11];
     int i;
-
-    for(i=0;i<10;i++)                               // Performing P10
-        kcopy[i]=key[p10[i]-1];
-    kcopy[i]='\0';
+    permute(kcopy,key,p10,10);                      // Performing P10
 
     for(i=0;i<5;i++)                                //Performing  LS-1
     {
@@ -83,11 +76,7 @@ void keygen()
     strcpy(kcopy,lpart);
     strcat(kcopy,rpart);
 
-    for(i=0;i<8;i++)                                // Performing P8 for k1
-    {
-        k1[i]=kcopy[p8[i]-1];
-    }
-    k1[i]='\0';
+    permute(k1,kcopy,p8,8);                         // Performing P8 for k1
 
     for(i=0;i<5;i++)                                //  Performing  LS-2
     {
@@ -99,11 +88,7 @@ void keygen()
     strcpy(kcopy,lpart);
     strcat(kcopy,rpart);
 
-    for(i=0;i<8;i++)                                // Performing P8 for k2
-    {
-        k2[i]=kcopy[p8[i]-1];
-    }
-    k2[i]='\0';
+    permute(k2,kcopy,p8,8);                         // Performing P8 for k2
 }
 void fkey(char keyarr[])
 {
@@ -119,26 +104,21 @@ void fkey(char keyarr[])
                             {3,0,1,0},
                             {2,1,0,3}
                         };                                                     //  S1 Box
-
     char bin[4][3]={"00","01","10","11"};
-    const int dec[2][2]={   {0,1},
-                            {2,3}
-                        };
+    const short dec[2][2]={   {0,1},
+                              {2,3}
+                          };
     char temp[9];
     char l[3],r[3];
     char toxor[5];                                     // Left and Right parts after e/p
     int i,row,col;
 
     for(i=0;i<8;i++)
-    {
         temp[i]=ptcopy[ 4 + ep[i]-1 ];                  //  Performing E/P on ptcopy right part
-    }
-
     temp[i]='\0';
+
     for(i=0;i<8;i++)
-    {
         temp[i]=(char)(48 + ((temp[i]- '0')^(keyarr[i] - '0')));   //  Performing XOR On temp with keyarr
-    }
 
     row=dec[ temp[0]-'0' ][ temp[3]-'0' ];
     col=dec[ temp[1]-'0' ][ temp[2]-'0' ];
@@ -150,13 +130,14 @@ void fkey(char keyarr[])
 
     strcpy(temp,l);
     strcat(temp,r);
-
-    for(i=0;i<4;i++)
-    {
-        toxor[i]=temp[p4[i]-1];
-    }
-    toxor[i]='\0';
+    permute(toxor,temp,p4,4);                                       //Performing P4
 
     for(i=0;i<4;i++)
         ptcopy[i]=(char)(48 + ((ptcopy[i]-'0')^(toxor[i]-'0')));
+}
+void permute(char * out , char * data , const short * permutator , int n)             //  Permutation
+{
+    for(int i=0;i<n;i++)
+        out[i]=data[permutator[i]-1];
+    out[n]='\0';
 }
