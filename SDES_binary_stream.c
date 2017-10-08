@@ -12,10 +12,13 @@ Output          :   The Cipher Text in Binary Representation
 #include<stdio.h>
 #include<string.h>
 
-char key[11],k1[9],k2[9],ptcopy[9],pt[9],ct[9];
+char key[11],k1[9],k2[9],ptcopy[9],pt[9],ct[9],dct[9]; // pt(plain text) ct(cipher text) dct(decipher text) ptcopy(for intermediate results)
+const short ip[8]={2,6,3,1,4,8,5,7};        // IP
+const short ipinv[8]={4,1,3,5,7,2,8,6};     // IP-1
 
 void permute(char * out , char * data,const short * permutator, int n);
 void sdes_encrypt();
+void sdes_decrypt();
 void keygen();
 void fkey(char keyarr[]);
 void swap();
@@ -26,9 +29,12 @@ int main()
     scanf("%s",key);
     printf("Enter 8 bit data or plain text in binary (e.g. 10101001)\n");
     scanf("%s",pt);
-    sdes_encrypt();
+    keygen();
+    sdes_encrypt(pt);
+    sdes_decrypt(ct);
     printf("Plain Text: %s\n", pt);
     printf("Cipher Text: %s\n", ct);
+    printf("Decipher Text:%s\n",dct);
     return 0;
 }
 void swap()                                                 //SW SWITCH OR SWAP To switch left and right part of ptcopy
@@ -44,17 +50,23 @@ void swap()                                                 //SW SWITCH OR SWAP 
 }
 void sdes_encrypt()
 {
-    keygen();
-    const short ip[8]={2,6,3,1,4,8,5,7};        // IP
-    const short ipinv[8]={4,1,3,5,7,2,8,6};     // IP-1
-    int i;
     permute(ptcopy,pt,ip,8);                   // Performing IP on pt
 
     fkey(k1);
     swap();
     fkey(k2);
 
-    permute(ct,ptcopy,ipinv,8);                 // Performing IP-1 on ptcopy for Cipher Text
+    permute(ct,ptcopy,ipinv,8);          // Performing IP-1 on ptcopy for Cipher Text
+}
+void sdes_decrypt()
+{
+    permute(ptcopy,ct,ip,8);                   // Performing IP on ct
+
+    fkey(k2);
+    swap();
+    fkey(k1);
+
+    permute(dct,ptcopy,ipinv,8);          // Performing IP-1 on ptcopy for DeCipher Text
 }
 void keygen()
 {
