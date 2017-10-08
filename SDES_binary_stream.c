@@ -2,7 +2,7 @@
 Title           :   S-DES Implementation
 Author          :   shreyx ( Shreyanshu Agarwal )
 Github Profile  :   https://github.com/shreyx
-Disclaimer      :   This code is presented "as is" without any guarantees.
+Disclaimer      :   This code is presented "as is" without any warantees of any kind.
 Description     :   This code is an implementation of S-DES encryption using C for binary stream input
 Input Format    :   Binary Representation of 10 bit key(exactly 10 chars)
                     Binary Representation of 8 bit plain text(exactly 8 chars)
