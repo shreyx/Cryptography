@@ -8,24 +8,34 @@ Description     :   This code is an implementation of S-DES encryption using C f
 */
 #include<stdio.h>
 
+static const short ip[8]={2,6,3,1,4,8,5,7};             // IP
+static const short ipinv[8]={4,1,3,5,7,2,8,6};          // IP-1
+int *k;
 int swap(int data);
 int permute(int d,const short * permutator, int n ,int bitsize);
 int fk(int data, int key);
 int lcs(int val, int no_of_bits ,int bitsize);
 int * keygen(int key);
-int sdes_encrypt(int data,int key);
+int sdes_encrypt(int data);
+int sdes_decrypt(int data);
 
 int main()
 {
     int key;            // 10 bit key ---->  Non-negative Value less than 1024
     int data;           // 8 Bit data ---->  Non-negative Value less than 256
-    int cipher;
+    int cipher,decipher;
     printf("Enter 10 bit Key i.e. non-negative integer value less than 1024\n");
     scanf("%d",&key);
+
     printf("Enter 8 bit Data or Plain Text i.e. non-negative integer value less than 256\n");
     scanf("%d",&data);
-    cipher=sdes_encrypt(data,key);								//	S DES Encryption
-    printf("SDES Encrypted Data is = %d",cipher);
+
+    k=keygen(key);
+    cipher=sdes_encrypt(data);
+    decipher=sdes_decrypt(cipher);
+    printf("Original Data is= %d\n",data);
+    printf("SDES Encrypted Data is = %d\n",cipher);
+    printf("SDES Decrypted Data is = %d\n",decipher);
     return 0;
 }
 
@@ -128,21 +138,21 @@ int * keygen(int key)                                       //   Generate k1 and
     return k;
 }
 
-int sdes_encrypt(int data,int key)
+int sdes_encrypt(int data)
 {
-    static const short ip[8]={2,6,3,1,4,8,5,7};             // IP
-    static const short ipinv[8]={4,1,3,5,7,2,8,6};          // IP-1
-    int *k=keygen(key);                                     // generate_keys k1  and k2
-
     int ptcopy=permute(data, ip , 8 , 8);
-
     ptcopy=fk( ptcopy , k[0]);                              //  Perform fk1
-
     ptcopy=swap(ptcopy);                                    //  Swap left and Right Parts
-
     ptcopy=fk( ptcopy , k[1]);                              //  Perform fk2
-
     ptcopy=permute(ptcopy, ipinv , 8 , 8);                  //  Perform IP inverse
-
+    return ptcopy;
+}
+int sdes_decrypt(int data)
+{
+    int ptcopy=permute(data, ip , 8 , 8);
+    ptcopy=fk( ptcopy , k[1]);                              //  Perform fk2
+    ptcopy=swap(ptcopy);                                    //  Swap left and Right Parts
+    ptcopy=fk( ptcopy , k[0]);                              //  Perform fk1
+    ptcopy=permute(ptcopy, ipinv , 8 , 8);                  //  Perform IP inverse
     return ptcopy;
 }
